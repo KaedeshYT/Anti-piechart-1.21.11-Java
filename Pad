@@ -1,1 +1,49 @@
-src/main/java/me/jouwnaam/antipiechart/AntiPieChartPlugin.java
+package me.yourname.antipiechart;
+
+import com.comphenix.protocol.*;
+import com.comphenix.protocol.events.*;
+import org.bukkit.command.*;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public final class AntiPieChartPlugin extends JavaPlugin implements CommandExecutor {
+
+    @Override
+    public void onEnable() {
+        saveDefaultConfig();
+
+        if (!getConfig().getBoolean("enabled")) {
+            getLogger().info("AntiPieChart disabled via config.");
+            return;
+        }
+
+        getCommand("antipiechart").setExecutor(this);
+
+        ProtocolLibrary.getProtocolManager().addPacketListener(
+            new PacketAdapter(this, ListenerPriority.NORMAL,
+                    PacketType.Play.Server.DEBUG_SAMPLE) {
+
+                @Override
+                public void onPacketSending(PacketEvent event) {
+                    Player player = event.getPlayer();
+                    if (player.hasPermission("antipiechart.bypass")) return;
+                    event.getPacket().getModifier().writeDefaults();
+                }
+            }
+        );
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!sender.hasPermission("antipiechart.admin")) return true;
+        if (args.length == 0) return true;
+
+        if (args[0].equalsIgnoreCase("reload")) {
+            reloadConfig();
+            sender.sendMessage("§aConfig reloaded.");
+        } else if (args[0].equalsIgnoreCase("status")) {
+            sender.sendMessage("§eEnabled: " + getConfig().getBoolean("enabled"));
+        }
+        return true;
+    }
+}
