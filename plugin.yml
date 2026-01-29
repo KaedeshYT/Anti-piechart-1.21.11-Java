@@ -1,0 +1,15 @@
+name: AntiPieChart
+version: 1.0.0
+main: me.yourname.antipiechart.AntiPieChartPlugin
+api-version: '1.21'
+depend: [ProtocolLib]
+
+commands:
+  antipiechart:
+    usage: /antipiechart <reload|status>
+
+permissions:
+  antipiechart.bypass:
+    default: false
+  antipiechart.admin:
+    default: op
